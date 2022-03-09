@@ -1,5 +1,8 @@
 package com.example.demo.dao;
 
+import java.util.List;
+
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("users")
@@ -8,6 +11,9 @@ public class UserItem {
 	String name;
 	String email;
 	String password;
+	
+	@DBRef
+	List<TaskItem> tasks;
 	
 	public UserItem() {};
 	

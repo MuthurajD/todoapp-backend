@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dao.UserItem;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.utils.AuthResponse;
-import com.example.demo.utils.Token;
 
 @Service
 public class UserService {
@@ -16,23 +14,30 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepository;
 	
-	public AuthResponse signUp(UserItem user) {
+	public void signUp (UserItem user) throws Exception {
+		
+		if(user.getEmail()==null || user.getPassword()==null || user.getName()==null) 
+			throw new Exception("Info not provided");
+		
 		Optional<UserItem> userWithEmail = userRepository.findByEmail(user.getEmail());
 		
-		if (userWithEmail.isPresent()) return new AuthResponse("User With email Already Exists");
-		user = userRepository.save(user);
+		if (userWithEmail.isPresent() ) throw new Exception("User with email Already Exists");
 		
-		return new AuthResponse(new Token(user.get_id(),user.getEmail()),"SignedUp Successfully");
+		userRepository.save(user);
 	}
 	
-	public AuthResponse logIn(UserItem user) {
+	public void logIn(UserItem user) throws Exception {
+		
+		if (user.getEmail() == null || user.getPassword() == null) 
+			throw new Exception("Password or email not given");
 		Optional<UserItem> userWithEmailAndPassword = 
 				userRepository.findByEmailAndPassword(user.getEmail(), user.getPassword());
 		
-		if (userWithEmailAndPassword.isPresent()==false) return new AuthResponse("Wrong Email or Password");
-		user = userWithEmailAndPassword.get();
+		if (userWithEmailAndPassword.isEmpty()) throw new Exception("Wrong email or password");
 		
-		return new AuthResponse( new Token(user.get_id(),user.getEmail()),"LoggedIn Successfully");
+		user.set_id(userWithEmailAndPassword.get().get_id());
+		user.setName(userWithEmailAndPassword.get().getName());
+		
 	}
 	
 	public Optional<UserItem> getUserById(String id) {

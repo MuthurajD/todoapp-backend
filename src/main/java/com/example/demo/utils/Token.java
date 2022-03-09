@@ -1,42 +1,42 @@
 package com.example.demo.utils;
 
+import java.security.Key;
 
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+@Component
 public class Token {
-	String id;
-	String email;
 	
-	public Token(String id,String email) {
-		this.id = id;
-		this.email = email;
-	}
+	public Key privateKey;
 	
-	public static Boolean verify(Token token) {
-		return token!=null;
+	public Key getPrivateKey() {
+		return Keys.secretKeyFor(SignatureAlgorithm.HS256);
 	}
 	
-	public static Token encrypt(Token token) {
-		return token;
+	Token(){
+		privateKey = getPrivateKey();
 	}
 	
-	public static Token decrypt(Token token) {
-		return token;
-	}
-
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
+	public String getSignedToken(Claims claims) {
+		return Jwts.builder()
+		    .setClaims(claims)
+	        .signWith(privateKey)
+	        .compact();
 	}
 	
+	public Jws<Claims> parseToken(String token) throws Exception{
+		try {
+		    return Jwts.parserBuilder().setSigningKey(privateKey).build().parseClaimsJws(token);
+
+		} catch (Exception e) {
+			throw new Exception("Invalid JWT token");
+		}
+		
+	}
 }

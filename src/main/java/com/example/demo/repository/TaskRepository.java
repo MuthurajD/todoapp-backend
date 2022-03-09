@@ -2,10 +2,13 @@ package com.example.demo.repository;
 
 import java.util.List;
 
-import org.springframework.data.repository.CrudRepository;
-import com.example.demo.dao.TaskItem;
-import com.example.demo.dao.UserItem;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
-public interface TaskRepository extends CrudRepository<TaskItem,String>{
-	 List<TaskItem> findAllByUserItem(UserItem userItem);
+import com.example.demo.dao.TaskItem;
+
+public interface TaskRepository extends MongoRepository<TaskItem,String>{
+	 
+	 @Query(value="{'user_id':?0}")
+	 List<TaskItem> findAllByUser_id(String id);
 }
